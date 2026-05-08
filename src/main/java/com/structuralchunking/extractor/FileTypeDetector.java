@@ -44,7 +44,7 @@ public final class FileTypeDetector {
         if ("html".equals(extension) || content.contains("<html") || content.contains("<!doctype html")) {
             return FileType.HTML;
         }
-        if ("csv".equals(extension) || content.contains(",") && content.contains("\n")) {
+        if (("csv".equals(extension)) || (content.contains(",") && content.contains("\n"))) {
             return FileType.CSV;
         }
         return FileType.UNKNOWN;
