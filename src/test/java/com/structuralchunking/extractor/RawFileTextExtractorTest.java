@@ -36,7 +36,7 @@ class RawFileTextExtractorTest {
     void extractsFromHtmlCsvPdfXlsXlsxPptPptx() throws Exception {
         Path html = createHtml();
         Path csv = createCsv();
-        Path pdf = createPdf("sample.bin");
+        Path pdf = createPdf("sample.pdf");
         Path xls = createXls();
         Path xlsx = createXlsx();
         Path ppt = createPpt();

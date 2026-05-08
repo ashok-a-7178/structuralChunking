@@ -1,20 +1,23 @@
 package com.structuralchunking.extractor;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Files;
+import java.util.Arrays;
 
 public final class FileTypeDetector {
     private static final byte[] PDF_MAGIC = new byte[]{0x25, 0x50, 0x44, 0x46};
     private static final byte[] OLE2_MAGIC = new byte[]{(byte) 0xD0, (byte) 0xCF, 0x11, (byte) 0xE0};
     private static final byte[] ZIP_MAGIC = new byte[]{0x50, 0x4B, 0x03, 0x04};
+    private static final int TEXT_SAMPLE_BYTES = 8192;
 
     private FileTypeDetector() {
     }
 
     public static FileType detect(Path filePath) throws IOException {
-        byte[] bytes = Files.readAllBytes(filePath);
+        byte[] bytes = readPrefix(filePath, TEXT_SAMPLE_BYTES);
         String extension = extensionOf(filePath);
 
         if (startsWith(bytes, PDF_MAGIC)) {
@@ -66,5 +69,16 @@ public final class FileTypeDetector {
             }
         }
         return true;
+    }
+
+    private static byte[] readPrefix(Path filePath, int maxBytes) throws IOException {
+        byte[] buffer = new byte[maxBytes];
+        try (InputStream inputStream = Files.newInputStream(filePath)) {
+            int read = inputStream.read(buffer);
+            if (read <= 0) {
+                return new byte[0];
+            }
+            return Arrays.copyOf(buffer, read);
+        }
     }
 }
