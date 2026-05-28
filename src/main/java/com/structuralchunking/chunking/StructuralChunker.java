@@ -27,12 +27,12 @@ public class StructuralChunker {
             if (element.text().isBlank()) {
                 continue;
             }
-            if (element.type() == ElementType.HEADING || element.type() == ElementType.TITLE || element.type() == ElementType.SHEET) {
-                currentHeading = element.text();
-            }
             if (!buffer.isEmpty() && buffer.length() + element.text().length() + 1 > maxCharacters) {
                 chunks.add(newChunk(document, chunks.size() + 1, currentHeading, buffer.toString()));
                 buffer.setLength(0);
+            }
+            if (element.type() == ElementType.HEADING || element.type() == ElementType.TITLE || element.type() == ElementType.SHEET) {
+                currentHeading = element.text();
             }
             if (!buffer.isEmpty()) {
                 buffer.append(System.lineSeparator());

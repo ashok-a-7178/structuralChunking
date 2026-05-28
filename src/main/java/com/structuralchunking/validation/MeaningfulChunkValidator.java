@@ -19,7 +19,7 @@ public class MeaningfulChunkValidator {
         if (document.elements().isEmpty() || document.fullText().isBlank()) {
             issues.add("Parser produced no text");
         }
-        if (document.elements().stream().noneMatch(element -> element.type() != ElementType.TEXT)) {
+        if (document.elements().stream().allMatch(element -> element.type() == ElementType.TEXT)) {
             issues.add("Parser did not expose structural elements");
         }
         if (chunks.isEmpty()) {
