@@ -5,11 +5,15 @@ import com.structuralchunking.extractor.FileTypeDetector;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 public class ExternalCommandStructuralParser implements StructuralParser {
+    private static final long PARSER_TIMEOUT_MINUTES = 5;
+
     private final String name;
     private final List<String> command;
 
@@ -41,12 +45,19 @@ public class ExternalCommandStructuralParser implements StructuralParser {
             throw new IllegalArgumentException("Unsupported file type for file: " + filePath);
         }
 
-        ProcessBuilder builder = new ProcessBuilder(buildCommand(filePath));
-        builder.redirectErrorStream(true);
+        Path outputPath = Files.createTempFile("structural-parser-", ".txt");
         try {
+            ProcessBuilder builder = new ProcessBuilder(buildCommand(filePath));
+            builder.redirectErrorStream(true);
+            builder.redirectOutput(outputPath.toFile());
             Process process = builder.start();
-            String output = new String(process.getInputStream().readAllBytes(), StandardCharsets.UTF_8).trim();
-            int exitCode = process.waitFor();
+            boolean completed = process.waitFor(PARSER_TIMEOUT_MINUTES, TimeUnit.MINUTES);
+            if (!completed) {
+                process.destroyForcibly();
+                throw new IOException(name + " parser timed out after " + PARSER_TIMEOUT_MINUTES + " minutes");
+            }
+            String output = Files.readString(outputPath, StandardCharsets.UTF_8).trim();
+            int exitCode = process.exitValue();
             if (exitCode != 0) {
                 throw new IOException(name + " parser exited with code " + exitCode + ": " + output);
             }
@@ -60,6 +71,8 @@ public class ExternalCommandStructuralParser implements StructuralParser {
         } catch (InterruptedException ex) {
             Thread.currentThread().interrupt();
             throw new IOException(name + " parser was interrupted", ex);
+        } finally {
+            Files.deleteIfExists(outputPath);
         }
     }
 

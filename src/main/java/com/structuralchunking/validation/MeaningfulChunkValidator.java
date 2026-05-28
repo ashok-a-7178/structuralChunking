@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MeaningfulChunkValidator {
+    private static final double ISSUE_PENALTY = 0.25;
+
     private final int maxChunkCharacters;
 
     public MeaningfulChunkValidator(int maxChunkCharacters) {
@@ -33,7 +35,7 @@ public class MeaningfulChunkValidator {
                 issues.add("Chunk " + chunk.index() + " exceeds " + maxChunkCharacters + " characters");
             }
         }
-        double score = Math.max(0.0, 1.0 - (issues.size() * 0.25));
+        double score = Math.max(0.0, 1.0 - (issues.size() * ISSUE_PENALTY));
         return new ParseValidationResult(
                 document.parserName(),
                 document.sourcePath(),
