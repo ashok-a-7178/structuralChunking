@@ -31,6 +31,8 @@ import java.util.Map;
 import java.util.StringJoiner;
 
 public class NativeStructuralParser implements StructuralParser {
+    private static final String HTML_STRUCTURAL_ELEMENTS = "h1,h2,h3,h4,h5,h6,p,li,tr";
+
     @Override
     public String name() {
         return "native";
@@ -81,7 +83,7 @@ public class NativeStructuralParser implements StructuralParser {
         if (!document.title().isBlank()) {
             elements.add(StructuralElement.of(ElementType.TITLE, document.title()));
         }
-        for (Element element : document.body().select("h1,h2,h3,h4,h5,h6,p,li,tr")) {
+        for (Element element : document.body().select(HTML_STRUCTURAL_ELEMENTS)) {
             String text = element.text().trim();
             if (text.isBlank()) {
                 continue;

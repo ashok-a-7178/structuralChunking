@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Map;
 
 public class StructuralChunker {
+    private static final int LINE_SEPARATOR_BUFFER = System.lineSeparator().length();
+
     private final int maxCharacters;
 
     public StructuralChunker(int maxCharacters) {
@@ -27,7 +29,7 @@ public class StructuralChunker {
             if (element.text().isBlank()) {
                 continue;
             }
-            if (!buffer.isEmpty() && buffer.length() + element.text().length() + 1 > maxCharacters) {
+            if (!buffer.isEmpty() && buffer.length() + element.text().length() + LINE_SEPARATOR_BUFFER > maxCharacters) {
                 chunks.add(newChunk(document, chunks.size() + 1, currentHeading, buffer.toString()));
                 buffer.setLength(0);
             }
